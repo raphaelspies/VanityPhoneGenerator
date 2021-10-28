@@ -8,10 +8,12 @@ exports.handler = async (event, context) => {
 
   //read event, then select phone number from key1 and region code from key2
   const pn = new AwesomeNumber(event.key1, event.key2);
+  //validate phone number
   if(!pn.isValid()) {
     throw new Error("Phone number is invalid")
   }
-
+  //separate prefix (e.g., area code) from exchange code + line number
+  const countryCode = pn.getCountryCode();
   const prefix = pn.getNumber('significant').slice(0,3)
   const phoneNumber = pn.getNumber('significant').slice(3);
 
@@ -49,7 +51,7 @@ exports.handler = async (event, context) => {
         if (index === digits.length - 1) {
           //check if it's a real word
           let currentWord = stack.join('')
-          if (words.check(currentWord)) resultArray.push(currentWord);
+          if (words.check(currentWord)) resultArray.push(countryCode + "-" + prefix + "-" + currentWord);
         } else {
           dfs(digits, index + 1, stack);
         };
