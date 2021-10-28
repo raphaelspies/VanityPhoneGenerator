@@ -20,7 +20,7 @@ exports.handler = async (event, context) => {
 
 
   // //generate all possible permutations of letters
-  const letterCombinations = (digits) => {
+  const letterCombinations = (digits, unusedNums) => {
 
     if (digits.length === 0) {
       return []
@@ -51,7 +51,10 @@ exports.handler = async (event, context) => {
         if (index === digits.length - 1) {
           //check if it's a real word
           let currentWord = stack.join('')
-          if (words.check(currentWord)) resultArray.push(countryCode + "-" + prefix + "-" + currentWord);
+          if (words.check(currentWord)) {
+            console.log(digits)
+            resultArray.push(countryCode + "-" + prefix + "-" + phoneNumber.slice(0, unusedNums) + '-' + currentWord);
+          }
         } else {
           dfs(digits, index + 1, stack);
         };
@@ -60,13 +63,25 @@ exports.handler = async (event, context) => {
     };
 
     dfs(digits.split(''), 0, stack)
+    console.log(resultArray)
     return resultArray;
   };
 
-    const permutations = letterCombinations(phoneNumber)
+  //invoke letterCombinations with a sliding window (min length: 4 chars)
+  const permutations = (input) => {
+    let first3Results = [];
+    for (let i = 0; i < input.length - 4; i++) {
+      if (first3Results.length < 3) {
+        first3Results = first3Results.concat(letterCombinations(input.slice(i), i))
+      } else {
+        return first3Results;
+      }
+    }
+    return first3Results;
+  }
     // console.log(`permutations: ${JSON.stringify(permutations)}`);
     // const validPermutations = lookForWords(permutations)
-    const result = permutations
+    const result = permutations(phoneNumber)
     // console.log(`Length of result: ${result.length}`);
     return result;
   };
