@@ -19,7 +19,7 @@ exports.handler = async (event, context) => {
 
 
 
-  // //generate all possible permutations of letters
+  //generate all possible permutations of letters
   const letterCombinations = (digits, unusedNums) => {
 
     if (digits.length === 0) {
@@ -52,8 +52,10 @@ exports.handler = async (event, context) => {
           //check if it's a real word
           let currentWord = stack.join('')
           if (words.check(currentWord)) {
-            console.log(digits)
-            resultArray.push(countryCode + "-" + prefix + "-" + phoneNumber.slice(0, unusedNums) + '-' + currentWord);
+            // adds the unused nums and '-' before the word, then pushes result to array
+            (unusedNums === 0) ?
+            resultArray.push(countryCode + "-" + prefix + "-" + currentWord)
+            : resultArray.push(countryCode + "-" + prefix + "-" + phoneNumber.slice(0, unusedNums) + '-' + currentWord);
           }
         } else {
           dfs(digits, index + 1, stack);
