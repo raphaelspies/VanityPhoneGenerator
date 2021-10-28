@@ -1,0 +1,15 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-vanitygenerator-dev-213858-authRole",
+      "UnauthRoleArn": "arn:aws:iam::399370245715:role/amplify-vanitygenerator-dev-213858-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::399370245715:role/amplify-vanitygenerator-dev-213858-authRole",
+      "Region": "us-west-2",
+      "DeploymentBucketName": "amplify-vanitygenerator-dev-213858-deployment",
+      "UnauthRoleName": "amplify-vanitygenerator-dev-213858-unauthRole",
+      "StackName": "amplify-vanitygenerator-dev-213858",
+      "StackId": "arn:aws:cloudformation:us-west-2:399370245715:stack/amplify-vanitygenerator-dev-213858/f9e80a90-37a8-11ec-b34e-066832e10a4f",
+      "AmplifyAppId": "d1n4xgvf8joyjj"
+    }
+  }
+}
