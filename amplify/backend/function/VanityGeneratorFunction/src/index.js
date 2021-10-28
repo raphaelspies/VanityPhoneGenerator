@@ -17,7 +17,7 @@ exports.handler = async (event, context) => {
   const prefix = pn.getNumber('significant').slice(0,3)
   const phoneNumber = pn.getNumber('significant').slice(3);
 
-
+  let resultArray = [];
 
   //generate all possible permutations of letters
   const letterCombinations = (digits, unusedNums) => {
@@ -39,7 +39,6 @@ exports.handler = async (event, context) => {
       "0": ["o"]
     };
 
-    let resultArray = [];
     let stack = [];
 
     const dfs = (digits, index, stack) => {
@@ -47,15 +46,18 @@ exports.handler = async (event, context) => {
 
       for (let i = 0; i < currentLetters.length; i++) {
         stack.push(currentLetters[i]);
+        if (resultArray.length >= 3) {
+          return;
+        }
 
         if (index === digits.length - 1) {
-          //check if it's a real word
           let currentWord = stack.join('')
+          //check if it's a real word
           if (words.check(currentWord)) {
             // adds the unused nums and '-' before the word, then pushes result to array
             (unusedNums === 0) ?
-            resultArray.push(countryCode + "-" + prefix + "-" + currentWord)
-            : resultArray.push(countryCode + "-" + prefix + "-" + phoneNumber.slice(0, unusedNums) + '-' + currentWord);
+              resultArray.push(countryCode + "-" + prefix + "-" + currentWord) :
+              resultArray.push(countryCode + "-" + prefix + "-" + phoneNumber.slice(0, unusedNums) + '-' + currentWord);
           }
         } else {
           dfs(digits, index + 1, stack);
@@ -66,24 +68,20 @@ exports.handler = async (event, context) => {
 
     dfs(digits.split(''), 0, stack)
     console.log(resultArray)
-    return resultArray;
+    return //resultArray;
   };
 
   //invoke letterCombinations with a sliding window (min length: 4 chars)
   const permutations = (input) => {
-    let first3Results = [];
     for (let i = 0; i < input.length - 4; i++) {
-      if (first3Results.length < 3) {
-        first3Results = first3Results.concat(letterCombinations(input.slice(i), i))
-      } else {
-        return first3Results;
-      }
+      letterCombinations(input.slice(i), i)
     }
-    return first3Results;
+    return;
   }
     // console.log(`permutations: ${JSON.stringify(permutations)}`);
     // const validPermutations = lookForWords(permutations)
-    const result = permutations(phoneNumber)
+    // const result =
+    permutations(phoneNumber)
     // console.log(`Length of result: ${result.length}`);
-    return result;
+    return resultArray;
   };
