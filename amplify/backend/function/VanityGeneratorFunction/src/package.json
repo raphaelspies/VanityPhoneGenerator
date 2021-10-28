@@ -6,7 +6,6 @@
   "license": "Apache-2.0",
   "dependencies": {
     "awesome-phonenumber": "^2.64.0",
-    "check-word": "^1.1.0",
-    "libphonenumber-js": "^1.9.39"
+    "check-word": "^1.1.0"
   }
 }
