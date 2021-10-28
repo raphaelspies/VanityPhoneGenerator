@@ -1,12 +1,18 @@
 const checkWord = require('check-word');
 const words = checkWord('en');
 
+const AwesomeNumber = require('awesome-phonenumber');
+const parsePhoneNumber = require('libphonenumber-js');
+
 exports.handler = async (event, context) => {
 
-  //read event and select the phone number
-  const phoneNumber = event.key1;
+  //read event, then select phone number from key1 and region code from key2
+  const pn = new AwesomeNumber(event.key1, event.key2);
 
-  //generate all possible permutations of letters
+  const prefix = pn.getNumber('significant').slice(0,3)
+  const phoneNumber = pn.getNumber('significant').slice(3);
+
+  // //generate all possible permutations of letters
   const letterCombinations = (digits) => {
 
     if (digits.length === 0) {
