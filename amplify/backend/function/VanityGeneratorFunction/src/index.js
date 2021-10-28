@@ -1,15 +1,59 @@
+const checkWord = require('check-word');
+const words = checkWord('en');
 
+exports.handler = async (event, context) => {
 
-exports.handler = async (event) => {
-    // TODO implement
-    const response = {
-        statusCode: 200,
-    //  Uncomment below to enable CORS requests
-    //  headers: {
-    //      "Access-Control-Allow-Origin": "*",
-    //      "Access-Control-Allow-Headers": "*"
-    //  }, 
-        body: JSON.stringify('Hello from Lambda!'),
+  //read event and select the phone number
+  const phoneNumber = event.key1;
+
+  //generate all possible permutations of letters
+  const letterCombinations = (digits) => {
+
+    if (digits.length === 0) {
+      return []
     };
-    return response;
-};
+
+    const map = {
+      "1": ["1"],
+      "2": ["a", "b", "c"],
+      "3": ["d", "e", "f"],
+      "4": ["g", "h", "i"],
+      "5": ["j", "k", "l"],
+      "6": ["m", "n", "o"],
+      "7": ["p", "q", "r", "s"],
+      "8": ["t", "u", "v"],
+      "9": ["w", "x", "y", "z"],
+      "0": ["o"]
+    };
+
+    let resultArray = [];
+    let stack = [];
+
+    const dfs = (digits, index, stack) => {
+      let currentLetters = map[digits[index]];
+
+      for (let i = 0; i < currentLetters.length; i++) {
+        stack.push(currentLetters[i]);
+
+        if (index === digits.length - 1) {
+          //check if it's a real word
+          let currentWord = stack.join('')
+          if (words.check(currentWord)) resultArray.push(currentWord);
+        } else {
+          dfs(digits, index + 1, stack);
+        };
+        stack.pop();
+      };
+    };
+
+    dfs(digits.split(''), 0, stack)
+    return resultArray;
+  };
+
+    const permutations = letterCombinations(phoneNumber)
+    // console.log(`permutations: ${JSON.stringify(permutations)}`);
+    // const validPermutations = lookForWords(permutations)
+    const result = permutations
+    // console.log(`Length of result: ${result.length}`);
+    return result;
+  };
