@@ -8,9 +8,14 @@ exports.handler = async (event, context) => {
 
   //read event, then select phone number from key1 and region code from key2
   const pn = new AwesomeNumber(event.key1, event.key2);
+  if(!pn.isValid()) {
+    throw new Error("Phone number is invalid")
+  }
 
   const prefix = pn.getNumber('significant').slice(0,3)
   const phoneNumber = pn.getNumber('significant').slice(3);
+
+
 
   // //generate all possible permutations of letters
   const letterCombinations = (digits) => {
