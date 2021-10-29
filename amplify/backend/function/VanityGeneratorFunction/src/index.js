@@ -1,6 +1,5 @@
-const checkWord = require('check-word');
-const words = checkWord('en');
-
+const isWord = require('is-word');
+const englishWords = isWord('american-english');
 const AwesomeNumber = require('awesome-phonenumber');
 
 exports.handler = async (event, context) => {
@@ -51,9 +50,9 @@ exports.handler = async (event, context) => {
         }
         //once a full valid combo has been created
         if (index === digits.length - 1) {
-          let currentWord = stack.join('')
+          let currentWord = stack.join('');
           //check if it's a real word
-          if (words.check(currentWord)) {
+          if (englishWords.check(currentWord)) {
             // adds the unused nums and '-' before the word, then pushes result to array
             (unusedNums === 0) ?
               resultArray.push(countryCode + "-" + prefix + "-" + currentWord) :
