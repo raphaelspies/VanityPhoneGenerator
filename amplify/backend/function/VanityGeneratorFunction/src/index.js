@@ -74,39 +74,39 @@ exports.handler = async (event, context) => {
   };
 
   //invoke letterCombinations with a sliding window (min length: 4 chars)
-  const slidingWindow = (input) => {
-    for (let i = 0; i < input.length - 4; i++) {
-      letterCombinations(input.slice(i), i)
-    }
-    return;
-  }
 
   //invoke function
-  slidingWindow(relevantDigits)
+  slidingWindow(relevantDigits, letterCombinations)
 
   //store result as an object
-
-  const buildResponseObject = (inputArray) => {
-    const responseObj = new Object();
-    responseObj.CustomerNumber = phoneNumber;
-    if (!inputArray || !inputArray[0]) {
-      responseObj.VanityNumbers = "No valid vanity numbers"
-    } else {
-      let stringArray = ""
-      for (let i = 0; i < inputArray.length; i++) {
-        stringArray += (inputArray[i])
-        if (i != inputArray.length - 1) {
-          stringArray += ", "
-        }
-      }
-      responseObj.VanityNumbers = stringArray//JSON.stringify(resultArray);
-    }
-    return responseObj
-  }
-
-  const response = buildResponseObject(resultArray)
+  const response = buildResponseObject(resultArray, phoneNumber)
 
   const stop = Date.now()
   console.log(`Time taken to execute = ${(stop - start)/1000} seconds`)
   return response;
 };
+
+const slidingWindow = (input, callback) => {
+  for (let i = 0; i < input.length - 4; i++) {
+    callback(input.slice(i), i)
+  }
+  return;
+}
+
+const buildResponseObject = (inputArray, originalPhoneNumber) => {
+  const responseObj = new Object();
+  responseObj.CustomerNumber = originalPhoneNumber;
+  if (!inputArray || !inputArray[0]) {
+    responseObj.VanityNumbers = "No valid vanity numbers"
+  } else {
+    let stringArray = ""
+    for (let i = 0; i < inputArray.length; i++) {
+      stringArray += (inputArray[i])
+      if (i != inputArray.length - 1) {
+        stringArray += ", "
+      }
+    }
+    responseObj.VanityNumbers = stringArray//JSON.stringify(resultArray);
+  }
+  return responseObj
+}

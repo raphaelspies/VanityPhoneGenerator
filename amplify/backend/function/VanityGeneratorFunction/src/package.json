@@ -6,6 +6,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "awesome-phonenumber": "^2.64.0",
+    "aws-sdk": "^2.1018.0",
     "is-word": "^1.0.4"
   }
 }
