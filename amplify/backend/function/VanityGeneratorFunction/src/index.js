@@ -5,7 +5,11 @@ const AwesomeNumber = require('awesome-phonenumber');
 exports.handler = async (event, context) => {
   const start = Date.now();
   //read event, then select phone number from key1 and region code from key2
-  const pn = new AwesomeNumber(event.key1, event.key2);
+  // const pn = new AwesomeNumber(event.key1, event.key2);
+  // const pn = new AwesomeNumber(event.Details.ContactData.CustomerEndpoint.Address, "US");
+  const phoneNumber = event.Details.Parameters.CustomerNumber;
+  const pn = new AwesomeNumber(phoneNumber, "US");
+
   //validate phone number
   if(!pn.isValid()) {
     throw new Error("Phone number is invalid")
@@ -44,8 +48,8 @@ exports.handler = async (event, context) => {
 
       for (let i = 0; i < currentLetters.length; i++) {
         stack.push(currentLetters[i]);
-        //exit dfs once 3 valid permutations are found
-        if (resultArray.length >= 3) {
+        //exit dfs once 5 valid permutations are found
+        if (resultArray.length >= 5) {
           return;
         }
         //once a full valid combo has been created
@@ -77,9 +81,32 @@ exports.handler = async (event, context) => {
     return;
   }
 
+  //invoke function
   slidingWindow(relevantDigits)
+
+  //store result as an object
+
+  const buildResponseObject = (inputArray) => {
+    const responseObj = new Object();
+    responseObj.CustomerNumber = phoneNumber;
+    if (!inputArray || !inputArray[0]) {
+      responseObj.VanityNumbers = "No valid vanity numbers"
+    } else {
+      let stringArray = ""
+      for (let i = 0; i < inputArray.length; i++) {
+        stringArray += (inputArray[i])
+        if (i != inputArray.length - 1) {
+          stringArray += ", "
+        }
+      }
+      responseObj.VanityNumbers = stringArray//JSON.stringify(resultArray);
+    }
+    return responseObj
+  }
+
+  const response = buildResponseObject(resultArray)
 
   const stop = Date.now()
   console.log(`Time taken to execute = ${(stop - start)/1000} seconds`)
-  return resultArray;
+  return response;
 };
