@@ -3,10 +3,10 @@ const englishWords = isWord('american-english');
 const AwesomeNumber = require('awesome-phonenumber');
 
 exports.handler = async (event, context) => {
+  //timer for function runtime duration
   const start = Date.now();
-  //read event, then select phone number from key1 and region code from key2
-  // const pn = new AwesomeNumber(event.key1, event.key2);
-  // const pn = new AwesomeNumber(event.Details.ContactData.CustomerEndpoint.Address, "US");
+
+  //get CustomerNumber parameter from input event
   const phoneNumber = event.Details.Parameters.CustomerNumber;
   const pn = new AwesomeNumber(phoneNumber, "US");
 
@@ -19,10 +19,22 @@ exports.handler = async (event, context) => {
   const prefix = pn.getNumber('significant').slice(0,3)
   const relevantDigits = pn.getNumber('significant').slice(3);
 
-  let resultArray = []; // held as closure to allow length to be regularly checked
+  //invoke letterCombinations with a sliding window (min length: 4 chars)
+  const vanityNumbers = slidingWindow(relevantDigits, letterCombinations)
+
+  //build a response Object using the returned vanity numbers
+  const responseObject = buildResponseObject(vanityNumbers, phoneNumber)
+
+  //stop timer and return the response
+  const stop = Date.now()
+  console.log(`Time taken to execute = ${(stop - start)/1000} seconds`)
+  return responseObject;
+};
 
   //generate all possible permutations of letters
   const letterCombinations = (digits, unusedNums) => {
+
+    let resultArray = [];
 
     if (digits.length === 0) {
       return []
@@ -50,7 +62,7 @@ exports.handler = async (event, context) => {
         stack.push(currentLetters[i]);
         //exit dfs once 5 valid permutations are found
         if (resultArray.length >= 5) {
-          return;
+          return resultArray;
         }
         //once a full valid combo has been created
         if (index === digits.length - 1) {
@@ -70,43 +82,31 @@ exports.handler = async (event, context) => {
     };
 
     dfs(digits.split(''), 0, stack)
-    return;
+    return resultArray;
   };
 
-  //invoke letterCombinations with a sliding window (min length: 4 chars)
-
-  //invoke function
-  slidingWindow(relevantDigits, letterCombinations)
-
-  //store result as an object
-  const response = buildResponseObject(resultArray, phoneNumber)
-
-  const stop = Date.now()
-  console.log(`Time taken to execute = ${(stop - start)/1000} seconds`)
-  return response;
-};
-
 const slidingWindow = (input, callback) => {
+  let allResults = [];
   for (let i = 0; i < input.length - 4; i++) {
-    callback(input.slice(i), i)
+    allResults = allResults.concat(callback(input.slice(i), i))
   }
-  return;
+  return allResults;
 }
 
 const buildResponseObject = (inputArray, originalPhoneNumber) => {
   const responseObj = new Object();
   responseObj.CustomerNumber = originalPhoneNumber;
   if (!inputArray || !inputArray[0]) {
-    responseObj.VanityNumbers = "No valid vanity numbers"
+    responseObj.VanityNumbers = "No valid vanity numbers";
   } else {
-    let stringArray = ""
+    let stringArray = "";
     for (let i = 0; i < inputArray.length; i++) {
-      stringArray += (inputArray[i])
+      stringArray += (inputArray[i]);
       if (i != inputArray.length - 1) {
-        stringArray += ", "
+        stringArray += ", ";
       }
     }
-    responseObj.VanityNumbers = stringArray//JSON.stringify(resultArray);
+    responseObj.VanityNumbers = stringArray;
   }
-  return responseObj
+  return responseObj;
 }
