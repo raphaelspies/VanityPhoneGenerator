@@ -2,7 +2,7 @@
   "Details": {
       "Parameters": {
           "sentAttributeKey": "sentAttributeValue",
-          "CustomerNumber": "18003569377"
+          "CustomerNumber": "1234567890"
       }
   },
   "Name": "ContactFlowEvent",

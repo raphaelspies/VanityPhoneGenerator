@@ -1,0 +1,9 @@
+{
+  "Details": {
+      "ContactData": {},
+      "Parameters": {
+          "sentAttributeKey": "sentAttributeValue",
+          "CustomerNumber": "+1234567890"
+      }
+  }
+}
