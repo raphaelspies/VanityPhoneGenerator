@@ -2,11 +2,11 @@ const isWord = require('is-word');
 const englishWords = isWord('american-english');
 const AwesomeNumber = require('awesome-phonenumber');
 
-module.exports.handler = async (event, context) => {
-  //timer for function runtime duration
+exports.handler = async (event, context) => {
   const start = Date.now();
-
-  //get CustomerNumber parameter from input event
+  //read event, then select phone number from key1 and region code from key2
+  // const pn = new AwesomeNumber(event.key1, event.key2);
+  // const pn = new AwesomeNumber(event.Details.ContactData.CustomerEndpoint.Address, "US");
   const phoneNumber = event.Details.Parameters.CustomerNumber;
   const pn = new AwesomeNumber(phoneNumber, "US");
 
@@ -14,36 +14,15 @@ module.exports.handler = async (event, context) => {
   if(!pn.isValid()) {
     throw new Error("Phone number is invalid")
   }
-
-  //invoke letterCombinations with a sliding window (min length: 4 chars)
-  const vanityNumbers = slidingWindow(pn, letterCombinations)
-
-  //build a response Object using the returned vanity numbers
-  const responseObject = buildResponseObject(vanityNumbers, phoneNumber)
-
-  //stop timer and return the response
-  const stop = Date.now()
-  console.log(`Time taken to execute = ${(stop - start)/1000} seconds`)
-  return responseObject;
-};
-
-const slidingWindow = (pn, callback) => {
   //separate prefix (e.g., area code) from exchange code + line number
   const countryCode = pn.getCountryCode();
   const prefix = pn.getNumber('significant').slice(0,3)
   const relevantDigits = pn.getNumber('significant').slice(3);
 
-let allResults = [];
-for (let i = 0; i < pn.length - 4; i++) {
-  allResults = allResults.concat(callback(pn.slice(i), i))
-}
-return allResults;
-}
+  let resultArray = []; // held as closure to allow length to be regularly checked
 
   //generate all possible permutations of letters
   const letterCombinations = (digits, unusedNums) => {
-
-    let resultArray = [];
 
     if (digits.length === 0) {
       return []
@@ -71,7 +50,7 @@ return allResults;
         stack.push(currentLetters[i]);
         //exit dfs once 5 valid permutations are found
         if (resultArray.length >= 5) {
-          return resultArray;
+          return;
         }
         //once a full valid combo has been created
         if (index === digits.length - 1) {
@@ -91,25 +70,42 @@ return allResults;
     };
 
     dfs(digits.split(''), 0, stack)
-    return resultArray;
+    return;
   };
 
-
-
-const buildResponseObject = (inputArray, originalPhoneNumber) => {
-  const responseObj = new Object();
-  responseObj.CustomerNumber = originalPhoneNumber;
-  if (!inputArray || !inputArray[0]) {
-    responseObj.VanityNumbers = "No valid vanity numbers";
-  } else {
-    let stringArray = "";
-    for (let i = 0; i < inputArray.length; i++) {
-      stringArray += (inputArray[i]);
-      if (i != inputArray.length - 1) {
-        stringArray += ", ";
-      }
+  //invoke letterCombinations with a sliding window (min length: 4 chars)
+  const slidingWindow = (input) => {
+    for (let i = 0; i < input.length - 4; i++) {
+      letterCombinations(input.slice(i), i)
     }
-    responseObj.VanityNumbers = stringArray;
+    return;
   }
-  return responseObj;
-}
+
+  //invoke function
+  slidingWindow(relevantDigits)
+
+  const response = buildResponseObject(resultArray, phoneNumber)
+
+  const stop = Date.now()
+  console.log(`Time taken to execute = ${(stop - start)/1000} seconds`)
+  return response;
+};
+
+  //store result as an object
+  const buildResponseObject = (inputArray, phoneNumber) => {
+    const responseObj = new Object();
+    responseObj.CustomerNumber = phoneNumber;
+    if (!inputArray || !inputArray[0]) {
+      responseObj.VanityNumbers = "No valid vanity numbers"
+    } else {
+      let stringArray = ""
+      for (let i = 0; i < inputArray.length; i++) {
+        stringArray += (inputArray[i])
+        if (i != inputArray.length - 1) {
+          stringArray += ", "
+        }
+      }
+      responseObj.VanityNumbers = stringArray//JSON.stringify(resultArray);
+    }
+    return responseObj
+  }
