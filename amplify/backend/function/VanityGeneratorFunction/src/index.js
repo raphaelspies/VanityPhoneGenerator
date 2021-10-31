@@ -8,10 +8,20 @@ exports.handler = async (event, context) => {
   // const pn = new AwesomeNumber(event.key1, event.key2);
   // const pn = new AwesomeNumber(event.Details.ContactData.CustomerEndpoint.Address, "US");
   const phoneNumber = event.Details.Parameters.CustomerNumber;
+
+  const vanityNumbers = calculateVanityNumbers(phoneNumber)
+  const response = buildResponseObject(vanityNumbers, phoneNumber)
+
+  const stop = Date.now()
+  console.log(`Time taken to execute = ${(stop - start)/1000} seconds`)
+  return response;
+};
+
+const calculateVanityNumbers = (phoneNumber) => {
   const pn = new AwesomeNumber(phoneNumber, "US");
 
-  //validate phone number
-  if(!pn.isValid()) {
+   //validate phone number
+   if(!pn.isValid()) {
     throw new Error("Phone number is invalid")
   }
   //separate prefix (e.g., area code) from exchange code + line number
@@ -20,6 +30,14 @@ exports.handler = async (event, context) => {
   const relevantDigits = pn.getNumber('significant').slice(3);
 
   let resultArray = []; // held as closure to allow length to be regularly checked
+
+  //invoke letterCombinations with a sliding window (min length: 4 chars)
+  const slidingWindow = (input) => {
+    for (let i = 0; i < input.length - 4; i++) {
+      letterCombinations(input.slice(i), i)
+    }
+    return;
+  }
 
   //generate all possible permutations of letters
   const letterCombinations = (digits, unusedNums) => {
@@ -73,23 +91,11 @@ exports.handler = async (event, context) => {
     return;
   };
 
-  //invoke letterCombinations with a sliding window (min length: 4 chars)
-  const slidingWindow = (input) => {
-    for (let i = 0; i < input.length - 4; i++) {
-      letterCombinations(input.slice(i), i)
-    }
-    return;
-  }
-
   //invoke function
-  slidingWindow(relevantDigits)
+  slidingWindow(relevantDigits);
+  return resultArray;
+}
 
-  const response = buildResponseObject(resultArray, phoneNumber)
-
-  const stop = Date.now()
-  console.log(`Time taken to execute = ${(stop - start)/1000} seconds`)
-  return response;
-};
 
   //store result as an object
   const buildResponseObject = (inputArray, phoneNumber) => {
