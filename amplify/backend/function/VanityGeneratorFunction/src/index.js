@@ -2,7 +2,7 @@ const isWord = require('is-word');
 const englishWords = isWord('american-english');
 const AwesomeNumber = require('awesome-phonenumber');
 
-exports.handler = async (event, context) => {
+module.exports.handler = async (event, context) => {
   //timer for function runtime duration
   const start = Date.now();
 
@@ -14,13 +14,9 @@ exports.handler = async (event, context) => {
   if(!pn.isValid()) {
     throw new Error("Phone number is invalid")
   }
-  //separate prefix (e.g., area code) from exchange code + line number
-  const countryCode = pn.getCountryCode();
-  const prefix = pn.getNumber('significant').slice(0,3)
-  const relevantDigits = pn.getNumber('significant').slice(3);
 
   //invoke letterCombinations with a sliding window (min length: 4 chars)
-  const vanityNumbers = slidingWindow(relevantDigits, letterCombinations)
+  const vanityNumbers = slidingWindow(pn, letterCombinations)
 
   //build a response Object using the returned vanity numbers
   const responseObject = buildResponseObject(vanityNumbers, phoneNumber)
@@ -30,6 +26,19 @@ exports.handler = async (event, context) => {
   console.log(`Time taken to execute = ${(stop - start)/1000} seconds`)
   return responseObject;
 };
+
+const slidingWindow = (pn, callback) => {
+  //separate prefix (e.g., area code) from exchange code + line number
+  const countryCode = pn.getCountryCode();
+  const prefix = pn.getNumber('significant').slice(0,3)
+  const relevantDigits = pn.getNumber('significant').slice(3);
+
+let allResults = [];
+for (let i = 0; i < pn.length - 4; i++) {
+  allResults = allResults.concat(callback(pn.slice(i), i))
+}
+return allResults;
+}
 
   //generate all possible permutations of letters
   const letterCombinations = (digits, unusedNums) => {
@@ -85,13 +94,7 @@ exports.handler = async (event, context) => {
     return resultArray;
   };
 
-const slidingWindow = (input, callback) => {
-  let allResults = [];
-  for (let i = 0; i < input.length - 4; i++) {
-    allResults = allResults.concat(callback(input.slice(i), i))
-  }
-  return allResults;
-}
+
 
 const buildResponseObject = (inputArray, originalPhoneNumber) => {
   const responseObj = new Object();
