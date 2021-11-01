@@ -8,6 +8,7 @@
     "test": "jest --watch"
   },
   "dependencies": {
+    "@shelf/jest-dynamodb": "^2.1.0",
     "awesome-phonenumber": "^2.64.0",
     "aws-sdk": "^2.1018.0",
     "is-word": "^1.0.4",
