@@ -23,7 +23,7 @@ test('Valid phone number with vanity numbers', async () => {
   expect(result).toStrictEqual(expectedResult);
 })
 
-test('Invalid phone number fails with correct error', async () => {
+test('Invalid phone number fails', async () => {
   expect.assertions(1) // make sure one assertion is called
   try {
     await handler(eventInvalidNo);
