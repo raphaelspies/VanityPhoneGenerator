@@ -1,7 +1,7 @@
 const AWS = require('aws-sdk');
 
 const {calculateVanityNumbers} = require('./calculateVanityNumbers')
-const {dynamoHandler} = require('./dynamo.js');
+const DynamoHandler = require('./dynamo.js');
 
 exports.handler = async (event, context) => {
   const start = Date.now();
@@ -11,8 +11,20 @@ exports.handler = async (event, context) => {
   const vanityNumbers = calculateVanityNumbers(phoneNumber)
 
   //write to DB
-  const createdTable = await dynamoHandler(phoneNumber, vanityNumbers)
-  // console.log("createtable output: ", createdTable)
+  const DB = new DynamoHandler()
+  const newTable = await DB.createNewTable()
+  const newEntry = await DB.createNewEntry(phoneNumber, vanityNumbers)
+
+  const newEntryParams = {
+    TableName: 'VanityPhoneNumbers-dev',
+    Item: {
+      "phoneNumber": phoneNumber,
+      "VanityNumbers": vanityNumbers
+    }
+  }
+
+  const checkNewEntry = await DB.getEntry(newEntryParams)
+  console.log(checkNewEntry)
 
   const response = await buildResponseObject(vanityNumbers, phoneNumber)
 
