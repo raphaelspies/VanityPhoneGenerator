@@ -7,7 +7,7 @@ module.exports.dynamoHandler = async (phoneNumber, vanityNumbers) => {
   });
 
   const dynamodb = new AWS.DynamoDB();
-  const docClient = new AWS.DynamoDB.DocumentClient();
+  // const docClient = new AWS.DynamoDB.DocumentClient();
 
   //check if table exists
 
@@ -43,11 +43,10 @@ module.exports.dynamoHandler = async (phoneNumber, vanityNumbers) => {
   }
 
   try {
-    await docClient.put(newEntryParams);
+    await dynamodb.putItem(newEntryParams);
     console.log("Added item ");
     const result = await dynamodb.getItem(newEntryParams)
-    console.log(result);
-
+    console.log(result)
   } catch (err) {
     console.error(err);
   }
