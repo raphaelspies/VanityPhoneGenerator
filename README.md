@@ -18,3 +18,11 @@ To view the source code for the main function, click [here](/amplify/backend/fun
 
 # Deployment
 There is a working version of this program deployed at `(228) 447-3583`.
+
+# Tests
+Development testing can be viewed by running `npm install` inside the main folder function ([here](/amplify/backend/function/VanityGeneratorFunction/src/)), then running `npm test`.
+
+# Known Issues
+1. `Dynamo.js` should initialize a new database if none exists, but may fail to do so.
+2. `Dynamo.js` may fail to create new database entries.
+3. `Dynamo.js` may fail to read new database entries.
