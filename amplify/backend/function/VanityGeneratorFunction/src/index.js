@@ -24,7 +24,7 @@ exports.handler = async (event, context) => {
   }
 
   const checkNewEntry = await DB.getEntry(newEntryParams)
-  console.log(checkNewEntry)
+  console.log(vanityNumbers)
 
   const response = await buildResponseObject(vanityNumbers, phoneNumber)
 

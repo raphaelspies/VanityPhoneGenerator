@@ -10,6 +10,14 @@
       "StackName": "amplify-vanitygenerator-dev-213858",
       "StackId": "arn:aws:cloudformation:us-west-2:399370245715:stack/amplify-vanitygenerator-dev-213858/f9e80a90-37a8-11ec-b34e-066832e10a4f",
       "AmplifyAppId": "d1n4xgvf8joyjj"
+    },
+    "categories": {
+      "function": {
+        "VanityGeneratorFunction": {
+          "deploymentBucketName": "amplify-vanitygenerator-dev-213858-deployment",
+          "s3Key": "amplify-builds/VanityGeneratorFunction-4966666e49346f454f4f-build.zip"
+        }
+      }
     }
   }
 }

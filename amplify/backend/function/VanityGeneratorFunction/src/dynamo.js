@@ -6,7 +6,10 @@ module.exports = class DynamoHandler  {
 
     AWS.config.update({
       region: "us-west-2",
+      endpoint: "http://dynamodb.us-west-2.amazonaws.com",
     });
+
+    this.createNewTable();
   }
 
 
@@ -40,11 +43,11 @@ module.exports = class DynamoHandler  {
 
   // const docClient = dynamodb.DocumentClient();
   async createNewEntry(phoneNumber, vanityNumbers) {
-    const newEntryParams = {
-      TableName: 'VanityPhoneNumbers-dev',
-      Item: {
+    let newEntryParams = {
+      "TableName": 'VanityPhoneNumbers-dev',
+      "Item": {
         "phoneNumber": phoneNumber,
-        "VanityNumbers": vanityNumbers
+        "VanityNumbers": vanityNumbers,
       }
     }
 
@@ -56,9 +59,16 @@ module.exports = class DynamoHandler  {
     }
   }
 
-  async getEntry(newEntryParams) {
-    const result = await this.dynamodb.getItem(newEntryParams)
-    console.log(result)
+  async getEntry(searchPhoneNumber) {
+    let params = {
+      "TableName": 'VanityPhoneNumbers-dev',
+      "Key": {
+        'phoneNumber': {S: searchPhoneNumber}
+      }
+    }
+
+    const result = await this.dynamodb.getItem(params)
+    // console.log(result)
     return result;
   }
 
