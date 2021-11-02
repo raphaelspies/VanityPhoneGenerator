@@ -1,15 +1,7 @@
 const AWS = require('aws-sdk');
 
 const {calculateVanityNumbers} = require('./calculateVanityNumbers')
-const {dynamoHandler} = require('./dynamodb.js');
-
-const URL = 'http://localhost:8000'
-AWS.config.update({
-  region: "us-west-2",
-  endpoint: URL,
-});
-const dynamodb = new AWS.DynamoDB();
-const docClient = new AWS.DynamoDB.DocumentClient();
+const {dynamoHandler} = require('./dynamo.js');
 
 exports.handler = async (event, context) => {
   const start = Date.now();
@@ -19,7 +11,7 @@ exports.handler = async (event, context) => {
   const vanityNumbers = calculateVanityNumbers(phoneNumber)
 
   //write to DB
-  const createdTable = await createTable()
+  const createdTable = await dynamoHandler()
   // console.log("createtable output: ", createdTable)
 
   const response = await buildResponseObject(vanityNumbers, phoneNumber)
@@ -49,39 +41,3 @@ const buildResponseObject = (inputArray, phoneNumber) => {
   return responseObj
 }
 
-const createTable = async function (phoneNumber, vanityNumbers) {
-  // should be create table IF NOT EXISTS
-  const createTableParams = {
-    TableName: 'VanityPhoneNumbers',
-    KeySchema: [
-      { AttributeName: "phoneNumber", KeyType: "HASH" }, //Partition key
-      { AttributeName: "VanityNumbers", KeyType: "RANGE" }, //Sort key
-    ],
-    AttributeDefinitions: [
-      { AttributeName: "phoneNumber", AttributeType: "S" },
-      { AttributeName: "VanityNumbers", AttributeType: "List" },
-    ],
-  };
-
-  try {
-    const createTable = await dynamodb.createTable(createTableParams)
-    // console.log(createTable)
-  } catch (err) {
-    console.error(err)
-  }
-
-  const newEntryParams = {
-    TableName: 'VanityPhoneNumbers',
-    Item: {
-      "phoneNumber": phoneNumber,
-      "VanityNumbers": vanityNumbers
-    }
-  }
-
-  try {
-    const putResponse = await docClient.put(newEntryParams)
-    // console.log(putResponse);
-  } catch (err) {
-    console.error("Unable to add item. Error JSON:", JSON.stringify(err, null, 2));
-  }
-}

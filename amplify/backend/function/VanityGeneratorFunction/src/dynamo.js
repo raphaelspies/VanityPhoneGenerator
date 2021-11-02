@@ -10,87 +10,48 @@ module.exports.dynamoHandler = async (phoneNumber, vanityNumbers) => {
   });
 
   const dynamodb = new AWS.DynamoDB();
+  const docClient = new AWS.DynamoDB.DocumentClient();
 
   //check if table exists
-  const checkIfExistsParams = {
-    TableName: 'VanityPhoneNumbers'
-  };
 
-  dynamodb.describeTable(checkIfExistsParams, (err, data) => {
-    if (err) {
-
-      const createTable = () => {
-        const createTableParams = {
-          TableName: 'VanityPhoneNumbers',
-          KeySchema: [
-            { AttribueName: "phoneNumber", keyType: "HASH" }, //Partition key
-            { AttributeName: "VanityNumbers", keyType: "RANGE" }, //Sort key
-          ],
-          AttributeDefinitions: [
-            { AttribueName: "phoneNumber", AttributeType: "S" },
-            { AttributeName: "VanityNumbers", AttributeType: "List" },
-          ],
-        };
-
-        // should be create table IF NOT EXISTS
-        dynamodb.createTable(createTableParams, (err, data) => {
-          if (err) {
-            console.error("Unable to create table. Error JSON:", JSON.stringify(err, null, 2));
-          } else {
-            console.log("Created table. Table description JSON:", JSON.stringify(data, null, 2));
-          }
-        });
-      }
-
-      createTable();
-
-      console.log("error: table doesn't exist")
-    } else {
-      console.log("Created table. Table description JSON:", JSON.stringify(data, null, 2));
+  try {
+    const createTable = async () => {
+      console.log("hello from createTable!")
+      const createTableParams = {
+        TableName: 'VanityPhoneNumbers',
+        KeySchema: [
+          { AttributeName: "phoneNumber", KeyType: "HASH" }, //Partition key
+          { AttributeName: "VanityNumbers", KeyType: "RANGE" }, //Sort key
+        ],
+        AttributeDefinitions: [
+          { AttributeName: "phoneNumber", AttributeType: "S" },
+          { AttributeName: "VanityNumbers", AttributeType: "List" },
+        ],
+      };
+      // should be create table IF NOT EXISTS
+      await dynamodb.createTable(createTableParams)
     }
-  })
-
-
-
-  // const createTableParams = {
-  //   TableName: 'VanityPhoneNumbers',
-  //   KeySchema: [
-  //     { AttribueName: "phoneNumber", keyType: "HASH" }, //Partition key
-  //     { AttributeName: "VanityNumbers", keyType: "RANGE" }, //Sort key
-  //   ],
-  //   AttributeDefinitions: [
-  //     { AttribueName: "phoneNumber", AttributeType: "S" },
-  //     { AttributeName: "VanityNumbers", AttributeType: "List" },
-  //   ],
-  // };
-
-  // should be create table IF NOT EXISTS
-  // dynamodb.createTable(createTableParams, (err, data) => {
-  //   if (err) {
-  //     console.error("Unable to create table. Error JSON:", JSON.stringify(err, null, 2));
-  //   } else {
-  //     console.log("Created table. Table description JSON:", JSON.stringify(data, null, 2));
-  //   }
-  // });
+    createTable();
+  } catch (err) {
+    console.log(err)
+  }
 
   // const docClient = dynamodb.DocumentClient();
 
-  // const newEntryParams = {
-  //   TableName: 'VanityPhoneNumbers',
-  //   Item: {
-  //     "phoneNumber": phoneNumber,
-  //     "VanityNumbers": VanityNumbers
-  //   }
-  // }
+  const newEntryParams = {
+    TableName: 'VanityPhoneNumbers',
+    Item: {
+      "phoneNumber": phoneNumber,
+      "VanityNumbers": vanityNumbers
+    }
+  }
 
-  // docClient.put(newEntryParams, (err, data) => {
-  //   if (err) {
-  //     console.error("Unable to add item. Error JSON:", JSON.stringify(err, null, 2));
-  //   } else {
-  //     console.log("Added item:", JSON.stringify(data, null, 2));
-  //   }
-  // })
+  try {
+    await docClient.put(newEntryParams)
+    console.log("Added item");
+  } catch (err) {
+    console.error(err);
+  }
 
-  console.log("hello")
   return;
 }
