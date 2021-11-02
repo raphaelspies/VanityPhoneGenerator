@@ -16,9 +16,8 @@ module.exports.dynamoHandler = async (phoneNumber, vanityNumbers) => {
 
   try {
     const createTable = async () => {
-      console.log("hello from createTable!")
       const createTableParams = {
-        TableName: 'VanityPhoneNumbers',
+        TableName: 'VanityPhoneNumbers-dev',
         KeySchema: [
           { AttributeName: "phoneNumber", KeyType: "HASH" }, //Partition key
           { AttributeName: "VanityNumbers", KeyType: "RANGE" }, //Sort key
@@ -39,7 +38,7 @@ module.exports.dynamoHandler = async (phoneNumber, vanityNumbers) => {
   // const docClient = dynamodb.DocumentClient();
 
   const newEntryParams = {
-    TableName: 'VanityPhoneNumbers',
+    TableName: 'VanityPhoneNumbers-dev',
     Item: {
       "phoneNumber": phoneNumber,
       "VanityNumbers": vanityNumbers
@@ -47,8 +46,8 @@ module.exports.dynamoHandler = async (phoneNumber, vanityNumbers) => {
   }
 
   try {
-    await docClient.put(newEntryParams)
-    console.log("Added item");
+    const result = await docClient.put(newEntryParams)
+    console.log("Added item ");
   } catch (err) {
     console.error(err);
   }

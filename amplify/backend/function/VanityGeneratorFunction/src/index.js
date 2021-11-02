@@ -11,7 +11,7 @@ exports.handler = async (event, context) => {
   const vanityNumbers = calculateVanityNumbers(phoneNumber)
 
   //write to DB
-  const createdTable = await dynamoHandler()
+  const createdTable = await dynamoHandler(phoneNumber, vanityNumbers)
   // console.log("createtable output: ", createdTable)
 
   const response = await buildResponseObject(vanityNumbers, phoneNumber)
