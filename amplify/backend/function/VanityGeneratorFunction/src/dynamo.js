@@ -1,12 +1,9 @@
 const AWS = require('aws-sdk');
 
-const URL = 'http://localhost:8000'
-
 module.exports.dynamoHandler = async (phoneNumber, vanityNumbers) => {
 
   AWS.config.update({
     region: "us-west-2",
-    endpoint: URL,
   });
 
   const dynamodb = new AWS.DynamoDB();
@@ -46,8 +43,11 @@ module.exports.dynamoHandler = async (phoneNumber, vanityNumbers) => {
   }
 
   try {
-    const result = await docClient.put(newEntryParams)
+    await docClient.put(newEntryParams);
     console.log("Added item ");
+    const result = await dynamodb.getItem(newEntryParams)
+    console.log(result);
+
   } catch (err) {
     console.error(err);
   }
